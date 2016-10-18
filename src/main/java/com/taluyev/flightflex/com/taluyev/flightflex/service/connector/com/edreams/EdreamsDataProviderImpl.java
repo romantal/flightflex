@@ -1,6 +1,7 @@
 package com.taluyev.flightflex.com.taluyev.flightflex.service.connector.com.edreams;
 
 import com.taluyev.flightflex.com.taluyev.flightflex.data.repository.AppSettingRepositoryFactory;
+import com.taluyev.flightflex.com.taluyev.flightflex.exception.FlightFlexException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,6 +27,10 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
     @Override
     public List<EdreamsFlightPlace> findFlightPlaceBySuggestion(String suggestion) {
 
+        WebDriver webDriver = null;
+
+        try {
+
         String phantomPath = AppSettingRepositoryFactory.getInstance().findByName("phantomPath").getValue();
 
         File file = new File(phantomPath);
@@ -37,19 +42,16 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
         desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, args);
         desiredCapabilities.setCapability("phantomjs.page.settings.userAgent", USER_AGENT);
 
-        PhantomJSDriver phantomJSDriver = new PhantomJSDriver(desiredCapabilities);
-
         desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, file.getAbsolutePath());
-        WebDriver webDriver = new PhantomJSDriver(desiredCapabilities);
+        webDriver = new PhantomJSDriver(desiredCapabilities);
 
         webDriver.manage().timeouts().implicitlyWait(TIMEOUT, TimeUnit.SECONDS);
 
-        phantomJSDriver.get(TRAVEL_URL);
+        webDriver.get(TRAVEL_URL);
 
-        phantomJSDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input")).sendKeys(suggestion);
+        webDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input")).sendKeys(new String[]{suggestion});
 
-
-        List<WebElement> suggestionsItemList = phantomJSDriver.findElementsByCssSelector(".item.od-airportselector-suggestions-item");
+        List<WebElement> suggestionsItemList = webDriver.findElements(By.cssSelector(".item.od-airportselector-suggestions-item"));
 
         List<EdreamsFlightPlace> result = new ArrayList<EdreamsFlightPlace>();
 
@@ -60,40 +62,27 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
             edreamsFlightPlace.setGeoNodeId(element.getAttribute("data-geo-node-id"));
             edreamsFlightPlace.setIata(element.getAttribute("data-iata"));
             edreamsFlightPlace.setCity(element.getAttribute("data-city"));
-
-/*
-            data-city="London"
-            data-country="United Kingdom"
-            data-country-code="GB"
-            data-name="Gatwick" data-text="Gatwick"
-            data-type="AIRPORT"
-            data-match-type="CITY"
-            data-geo-node-type="AIRPORT"
-            data-item-level="subItem" "mainItem"
-*/
-
-
-
-
-
+            edreamsFlightPlace.setCountry(element.getAttribute("data-country"));
+            edreamsFlightPlace.setCountryCode(element.getAttribute("data-country-code"));
+            edreamsFlightPlace.setName(element.getAttribute("data-name"));
+            edreamsFlightPlace.setType(element.getAttribute("data-type"));
+            edreamsFlightPlace.setMatchType(element.getAttribute("data-match-type"));
+            edreamsFlightPlace.setGeoNodeType(element.getAttribute("data-geo-node-type"));
+            edreamsFlightPlace.setItemLevel(element.getAttribute("data-item-level"));
+            edreamsFlightPlace.setTitle(element.getAttribute("title"));
 
             result.add(edreamsFlightPlace);
         }
 
-        phantomJSDriver.findElementsByCssSelector(".item.od-airportselector-suggestions-item").get(10).getAttribute("data-iata");
-
-        //od-flightsManager-search-flight-button od-button-overlay search_flight_button
-
-        webDriver.quit();
-
-        //Getting all the links present in the page by a HTML tag.
-        //java.util.List  links = driver.findElements(By.tagName("a"));
-
-
-        //phantomJSDriver.
-
-//Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"windows-10-32bit","javascriptEnabled":true,"takesScreenshot":false,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"},"phantomjs.page.settings.userAgent":"Mozilla/5.0 (Windows NT 5.1; rv:22.0) Gecko/20100101 Firefox/22.0"}
-
         return result;
+
+        } catch (Exception e) {
+            throw new FlightFlexException("Can not find flight place by suggestion.", e);
+        } finally {
+            if (webDriver != null) {
+                webDriver.quit();
+            }
+        }
+
     }
 }

@@ -12,6 +12,7 @@ public class AppSettingRepositoryImpl implements AppSettingRepository {
         AppSetting appSetting = new AppSetting();
 
         appSetting.setName(name);
+
         appSetting.setValue(System.getProperty(name));
 
         return appSetting;

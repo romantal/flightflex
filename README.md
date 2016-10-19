@@ -3,6 +3,14 @@
 The goal of this application is made possible to get data from remote source about frights.
 In this example data loading is implemented from http://www.edreams.com web site. It loads Flight places (cities) by suggestion.
 
+It is a prototype for application which implements only one use case - loading dictionary of flight places.
+Application shows how to use design patterns like Factory, Builder, Repository, Singleton.
+Also it shows how to use Java Exceptions in practice.
+
+To download and parce data from remote web site application uses PhantomJS headless browser.
+The reason of usage of headless browser "PhantomJS" is using AJAX with Java Script stuff by remote web site.
+In other case makes sense to use only Java native classes like HTTPConnection.
+
 ## Installation
 
 Steps to install application:

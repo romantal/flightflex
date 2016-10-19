@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class PhantomJSTest {
 
-    private static String PHANTOM_PATH = "src/test/bin/phantomjs.exe";
+    private static String PHANTOM_PATH = "src\\test\\bin\\phantomjs.exe";
     private static String suggestion = "London";
 
     @Test

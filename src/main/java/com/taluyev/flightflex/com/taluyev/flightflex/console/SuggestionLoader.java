@@ -10,13 +10,14 @@ import java.util.List;
  */
 public class SuggestionLoader {
 
-    private static String PHANTOM_PATH = "src/test/bin/phantomjs.exe";
+    //private static String PHANTOM_PATH = "src/test/bin/phantomjs.exe";
+
 
     public static void main(String[] args) {
 
-        System.setProperty("phantomPath", PHANTOM_PATH);
+        //System.setProperty("phantomPath", PHANTOM_PATH);
 
-        List<EdreamsFlightPlace> edreamsFlightPlaceList = EdreamsDataProviderFactory.getInstance().findFlightPlaceBySuggestion(args[1]);
+        List<EdreamsFlightPlace> edreamsFlightPlaceList = EdreamsDataProviderFactory.getInstance().findFlightPlaceBySuggestion(args[0]);
 
         for (EdreamsFlightPlace edreamsFlightPlace : edreamsFlightPlaceList) {
             System.out.println(String.format("%s,%s", edreamsFlightPlace.getIata(), edreamsFlightPlace.getTitle()));

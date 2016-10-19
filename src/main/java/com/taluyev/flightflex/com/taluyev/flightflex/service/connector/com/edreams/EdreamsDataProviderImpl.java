@@ -5,14 +5,9 @@ import com.taluyev.flightflex.com.taluyev.flightflex.exception.FlightFlexExcepti
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Roman_Taluiev on 10/18/2016.
@@ -21,8 +16,6 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
 
     private static String BASE_URL = "http://www.edreams.com";
     private static String TRAVEL_URL = BASE_URL + "/" + "travel/";
-    private static String USER_AGENT = "Mozilla/5.0 (Windows NT 5.1; rv:22.0) Gecko/20100101 Firefox/22.0";
-    private static long TIMEOUT = 30;
 
     @Override
     public List<EdreamsFlightPlace> findFlightPlaceBySuggestion(String suggestion) {
@@ -31,52 +24,44 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
 
         try {
 
-        String phantomPath = AppSettingRepositoryFactory.getInstance().findByName("phantomPath").getValue();
+            String phantomPath = AppSettingRepositoryFactory.getInstance().findByName("phantomPath").getValue();
 
-        File file = new File(phantomPath);
-        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, file.getAbsolutePath());
+            webDriver = (new EdreamsWebDriverBuilder()).setPhantomJSPath(phantomPath).build();
 
-        desiredCapabilities.setCapability("takesScreenshot", false);
-        String[] args = {"--ignore-ssl-errors=yes"};
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, args);
-        desiredCapabilities.setCapability("phantomjs.page.settings.userAgent", USER_AGENT);
+            webDriver.get(TRAVEL_URL);
 
-        desiredCapabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, file.getAbsolutePath());
-        webDriver = new PhantomJSDriver(desiredCapabilities);
+            webDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input")).sendKeys(new String[]{suggestion});
 
-        webDriver.manage().timeouts().implicitlyWait(TIMEOUT, TimeUnit.SECONDS);
+            List<WebElement> suggestionsItemList = webDriver.findElements(By.cssSelector(".item.od-airportselector-suggestions-item"));
 
-        webDriver.get(TRAVEL_URL);
+            System.out.println(String.format("Elements size: %d", suggestionsItemList.size()));
 
-        webDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input")).sendKeys(new String[]{suggestion});
+            List<EdreamsFlightPlace> result = new ArrayList<EdreamsFlightPlace>();
 
-        List<WebElement> suggestionsItemList = webDriver.findElements(By.cssSelector(".item.od-airportselector-suggestions-item"));
+            for (WebElement element : suggestionsItemList) {
+                EdreamsFlightPlace edreamsFlightPlace = new EdreamsFlightPlace();
 
-        List<EdreamsFlightPlace> result = new ArrayList<EdreamsFlightPlace>();
+                edreamsFlightPlace.setName(element.getAttribute("title"));
+                edreamsFlightPlace.setGeoNodeId(element.getAttribute("data-geo-node-id"));
+                edreamsFlightPlace.setIata(element.getAttribute("data-iata"));
+                edreamsFlightPlace.setCity(element.getAttribute("data-city"));
+                edreamsFlightPlace.setCountry(element.getAttribute("data-country"));
+                edreamsFlightPlace.setCountryCode(element.getAttribute("data-country-code"));
+                edreamsFlightPlace.setName(element.getAttribute("data-name"));
+                edreamsFlightPlace.setType(element.getAttribute("data-type"));
+                edreamsFlightPlace.setMatchType(element.getAttribute("data-match-type"));
+                edreamsFlightPlace.setGeoNodeType(element.getAttribute("data-geo-node-type"));
+                edreamsFlightPlace.setItemLevel(element.getAttribute("data-item-level"));
+                edreamsFlightPlace.setTitle(element.getAttribute("title"));
 
-        for (WebElement element : suggestionsItemList) {
-            EdreamsFlightPlace edreamsFlightPlace = new EdreamsFlightPlace();
+                result.add(edreamsFlightPlace);
 
-            edreamsFlightPlace.setName(element.getAttribute("title"));
-            edreamsFlightPlace.setGeoNodeId(element.getAttribute("data-geo-node-id"));
-            edreamsFlightPlace.setIata(element.getAttribute("data-iata"));
-            edreamsFlightPlace.setCity(element.getAttribute("data-city"));
-            edreamsFlightPlace.setCountry(element.getAttribute("data-country"));
-            edreamsFlightPlace.setCountryCode(element.getAttribute("data-country-code"));
-            edreamsFlightPlace.setName(element.getAttribute("data-name"));
-            edreamsFlightPlace.setType(element.getAttribute("data-type"));
-            edreamsFlightPlace.setMatchType(element.getAttribute("data-match-type"));
-            edreamsFlightPlace.setGeoNodeType(element.getAttribute("data-geo-node-type"));
-            edreamsFlightPlace.setItemLevel(element.getAttribute("data-item-level"));
-            edreamsFlightPlace.setTitle(element.getAttribute("title"));
+            }
 
-            result.add(edreamsFlightPlace);
-        }
-
-        return result;
+            return result;
 
         } catch (Exception e) {
+            System.err.print(e.getStackTrace());
             throw new FlightFlexException("Can not find flight place by suggestion.", e);
         } finally {
             if (webDriver != null) {

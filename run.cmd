@@ -1,0 +1,1 @@
+D:/jdk1.8.0_102/jre/bin/java.exe -DphantomPath=D:/usr/local/phantomjs-2.1.1-windows/bin/phantomjs.exe -cp target/com.taluyev.webdatacollector.crawler-1.0-SNAPSHOT-jar-with-dependencies.jar com.taluyev.flightflex.com.taluyev.flightflex.console.SuggestionLoader London

@@ -1,6 +1,6 @@
 # DataFlex
 
-The goal of this application is made possible to get data from remote source about frights.
+The goal of this application is made possible to get data from remote source about flights.
 In this example data loading is implemented from http://www.edreams.com web site. It loads Flight places (cities) by suggestion.
 
 It is a prototype for application which implements only one use case - loading dictionary of flight places.

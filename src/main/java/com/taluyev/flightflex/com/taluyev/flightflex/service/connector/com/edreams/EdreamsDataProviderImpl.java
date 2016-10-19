@@ -9,6 +9,8 @@ import org.openqa.selenium.WebElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by Roman_Taluiev on 10/18/2016.
  */
@@ -28,9 +30,19 @@ public class EdreamsDataProviderImpl implements EdreamsDataProvider {
 
             webDriver = (new EdreamsWebDriverBuilder()).setPhantomJSPath(phantomPath).build();
 
+            System.out.println(String.format("Follow the url: %s", TRAVEL_URL));
             webDriver.get(TRAVEL_URL);
+            System.out.println(String.format("Got Web Page with title :%s", webDriver.getTitle()));
 
-            webDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input")).sendKeys(new String[]{suggestion});
+            Thread.sleep(5000);
+
+            WebElement airportSelectorInput = webDriver.findElement(By.cssSelector("input.od-airportselector-input.airportselector_input"));
+
+            airportSelectorInput.sendKeys(new String[]{suggestion});
+
+            Thread.sleep(5000);
+
+            System.out.println(String.format("Sent keys '%s' to the current page", webDriver.getTitle()));
 
             List<WebElement> suggestionsItemList = webDriver.findElements(By.cssSelector(".item.od-airportselector-suggestions-item"));
 

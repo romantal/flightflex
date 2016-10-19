@@ -15,10 +15,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class EdreamsWebDriverBuilder {
 
-    public static final String BROWSER_NAME = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
     private String phantomJSPath;
     private int phantomJSPort = 8990;
-    private long implicitlyWaitSeconds = 20;
+    private long waitSeconds = 30;
 
 
     public EdreamsWebDriverBuilder setPhantomJSPath(String phantomJSPath) {
@@ -31,8 +31,8 @@ public class EdreamsWebDriverBuilder {
         return this;
     }
 
-    public EdreamsWebDriverBuilder setImplicitlyWaitSeconds(long time) {
-        implicitlyWaitSeconds = time;
+    public EdreamsWebDriverBuilder setWaitSeconds(long time) {
+        waitSeconds = time;
         return this;
     }
 
@@ -40,18 +40,20 @@ public class EdreamsWebDriverBuilder {
 
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
-        capabilities.setCapability(CapabilityType.BROWSER_NAME, BROWSER_NAME);
-        capabilities.setCapability(CapabilityType.PLATFORM, Platform.WINDOWS);
+        capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_SETTINGS_PREFIX + "userAgent", USER_AGENT);
+
+        capabilities.setCapability(CapabilityType.BROWSER_NAME, "chrome");
+        capabilities.setCapability(CapabilityType.PLATFORM, Platform.WIN8_1);
         capabilities.setCapability(CapabilityType.SUPPORTS_JAVASCRIPT, true);
         capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, false);
-        capabilities.setCapability(CapabilityType.SUPPORTS_ALERTS, true);
-        capabilities.setCapability(CapabilityType.SUPPORTS_SQL_DATABASE, true);
-        capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, true);
-        capabilities.setCapability(CapabilityType.SUPPORTS_APPLICATION_CACHE, true);
-        capabilities.setCapability(CapabilityType.SUPPORTS_NETWORK_CONNECTION, true);
+        capabilities.setCapability(CapabilityType.SUPPORTS_ALERTS, false);
+        capabilities.setCapability(CapabilityType.SUPPORTS_SQL_DATABASE, false);
+        capabilities.setCapability(CapabilityType.SUPPORTS_LOCATION_CONTEXT, false);
+        capabilities.setCapability(CapabilityType.SUPPORTS_APPLICATION_CACHE, false);
+        capabilities.setCapability(CapabilityType.SUPPORTS_NETWORK_CONNECTION, false);
         capabilities.setCapability(CapabilityType.SUPPORTS_FINDING_BY_CSS, true);
         //capabilities.setCapability(CapabilityType.PROXY, true);
-        capabilities.setCapability(CapabilityType.SUPPORTS_WEB_STORAGE, true);
+        capabilities.setCapability(CapabilityType.SUPPORTS_WEB_STORAGE, false);
         capabilities.setCapability(CapabilityType.ROTATABLE, false);
         //Enable this capability to accept all SSL certs by defaults.
         capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
@@ -73,8 +75,9 @@ public class EdreamsWebDriverBuilder {
         PhantomJSDriverService phantomJSDriverService = builder.build();
 
         PhantomJSDriver driver = new PhantomJSDriver(phantomJSDriverService, capabilities);
+        //driver.setLogLevel(Level.ALL);
 
-        driver.manage().timeouts().implicitlyWait(implicitlyWaitSeconds, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(waitSeconds, TimeUnit.SECONDS).setScriptTimeout(waitSeconds, TimeUnit.SECONDS).pageLoadTimeout(waitSeconds, TimeUnit.SECONDS);
 
         return driver;
     }
